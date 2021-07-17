@@ -1,12 +1,23 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import CurrencyFormat from 'react-currency-format';
+import '../css/wealth-list.css';
+import Chart from 'chart.js/auto';
 
 const Wealth = props => (
     <tr>
       <td>{props.wealth.wType}</td>
       <td>{props.wealth.wName}</td>
-      <td>{props.wealth.wType === 'asset' ? props.wealth.wAsset : props.wealth.wLiability}</td>
+      <td>
+        <CurrencyFormat 
+            value={props.wealth.wType === 'asset' ? props.wealth.wAsset : props.wealth.wLiability} 
+            displayType={'text'} 
+            thousandSeparator={true} 
+            prefix={'$'} 
+            decimalScale={4}
+        />
+      </td>
       <td>
         <Link to={"/edit/"+props.wealth._id}>edit</Link> | <a href="#" onClick={() => { props.deleteWealth(props.wealth._id) }}>delete</a>
       </td>
@@ -14,28 +25,33 @@ const Wealth = props => (
   )
 
 export default class WealthsList extends Component {
+
+
+    
     constructor(props) {
         super(props);
         
         this.deleteWealth = this.deleteWealth.bind(this);
+        this.createChart = this.createChart.bind(this);
 
         this.state = {
             assetTotal: 0,
             liabilityTotal: 0,
             netWorth: 0,
-            wealths: []
+            wealths: [],
         };
 
     }
 
     calcTotals(){
-        this.setState({ assetTotal: this.state.wealths.map(wealth => wealth.wAsset).reduce((acc, wealth) => wealth + acc) }, () => {this.calcNetWorth()})
-        this.setState({ liabilityTotal: this.state.wealths.map(wealth => wealth.wLiability).reduce((acc, wealth) => wealth + acc) }, () => {this.calcNetWorth()})
-    }
-
-    calcNetWorth() {
-        this.setState({ netWorth: this.state.assetTotal - this.state.liabilityTotal})
-
+        axios.get('http://localhost:5000/wealths/sum')
+            .then(response => {
+                this.setState({
+                    assetTotal: response.data.assetTotal,
+                    liabilityTotal: response.data.liabilityTotal,
+                    netWorth: response.data.netWorth
+                },() => {this.createChart()})
+            })
     }
 
     componentDidMount() {
@@ -46,6 +62,8 @@ export default class WealthsList extends Component {
             .catch((error) => {
                 console.log(error);
             })
+        
+            
     }
 
     deleteWealth(id) {
@@ -55,6 +73,7 @@ export default class WealthsList extends Component {
         this.setState({
             wealths: this.state.wealths.filter(el => el._id !== id)
         })
+        //},() => {this.updateChart()})
     }
 
     wealthList() {
@@ -63,13 +82,93 @@ export default class WealthsList extends Component {
         })
     }
 
+    // updateChart() {
+    //     Chart.instances[1].update();
+    //     console.log(Chart.instances);
+    // }
+
+    // Chart documentation:
+    // https://www.chartjs.org/docs/latest/charts/bar.html
+    createChart() {
+        var ctx = document.getElementById('wealthChart');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Assets', 'Liabilities'],
+                datasets: [{
+                    label: 'Portfolio',
+                    data: [this.state.assetTotal, this.state.liabilityTotal],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 99, 132, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }],
+            },
+            options: {
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        })
+    }
+
     render() {
         return (
             <div>
                 <h3>Wealth List</h3>
-                <p>Assets Total: {this.state.assetTotal}</p>
-                <p>Liabilities Total: {this.state.liabilityTotal}</p>
-                <p>Net Worth: {this.state.netWorth}</p>
+                <div className="row">
+                    <div className="column">
+                        <dl>
+                            <dt>
+                                <label>Assets Total:</label>
+                            </dt>
+                            <dd>
+                                <CurrencyFormat 
+                                    value={this.state.assetTotal} 
+                                    displayType={'text'} 
+                                    thousandSeparator={true} 
+                                    prefix={'$'} 
+                                    decimalScale={4}
+                                />
+                            </dd>
+                            <dt>
+                                <label>Liabilities Total:</label>
+                            </dt>
+                            <dd>
+                                <CurrencyFormat 
+                                    value={this.state.liabilityTotal} 
+                                    displayType={'text'} 
+                                    thousandSeparator={true} 
+                                    prefix={'$'} 
+                                    decimalScale={4}
+                                />
+                            </dd>
+                            <dt>
+                                <label>Net Worth:</label>
+                            </dt>
+                            <dd>
+                                <CurrencyFormat 
+                                    value={this.state.netWorth} 
+                                    displayType={'text'} 
+                                    thousandSeparator={true} 
+                                    prefix={'$'} 
+                                    decimalScale={4} 
+                                />
+                            </dd>
+                        </dl>
+                    </div>
+                    <div className="column">
+                        <canvas id="wealthChart" width="400" height="120"></canvas>
+                    </div>
+                </div>
                 <table className="table">
                 <thead className="thead-light">
                     <tr>

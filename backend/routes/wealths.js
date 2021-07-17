@@ -7,6 +7,18 @@ router.route('/').get((req,res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 });
 
+router.route('/sum').get((req,res) => {
+    Wealth.find()
+        .then(wealths => {
+            assetTotal = wealths.map(wealth => wealth.wAsset).reduce((acc, wealth) => wealth + acc);
+            liabilityTotal = wealths.map(wealth => wealth.wLiability).reduce((acc, wealth) => wealth + acc);
+            netWorth = assetTotal - liabilityTotal;
+            respObj = {"assetTotal": assetTotal, "liabilityTotal": liabilityTotal, "netWorth": netWorth};
+            res.json(respObj);
+        })
+        .catch(err => res.status(400).json('Error: ' + err));
+})
+
 router.route('/add').post((req, res) => {
     const wType = req.body.wType;
     const wName = req.body.wName;

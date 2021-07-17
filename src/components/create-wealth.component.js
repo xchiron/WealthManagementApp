@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import Select from 'react-select'
+import CurrencyFormat from 'react-currency-format';
 
 const wealthType =[
     { label: "Asset", value: 'asset' },
@@ -37,11 +38,13 @@ export default class CreateWealth extends Component {
         })
     }
 
-    onChangeWBalance(e) {
+    onChangeWBalance(value) {
         this.setState({
-            wBalance: e.target.value
-        })
+            wBalance: value
+        }, () => {this.changeBalanceCallback()})
+    }
 
+    changeBalanceCallback() {
         if (this.state.wType === 'asset') {
             this.setState({wAsset: this.state.wBalance})
             this.setState({wLiability: 0})
@@ -71,39 +74,43 @@ export default class CreateWealth extends Component {
     render() {
         return (
             <div>
-      <h3>Create New Wealth Log</h3>
-      
-      <form onSubmit={this.onSubmit}>
-        <label>Type: </label>
-        <Select 
-            options= { wealthType } 
-            onChange={this.onChangeWType}
-            value={this.state.wType === 'asset' ? { label: "Asset", value: 'asset' } : { label: "Liability", value: 'liability' }}
-            />
-        <div className="form-group">
-          <label>Name: </label>
-          <input 
-              type="text" 
-              className="form-control"
-              value={this.state.wName}
-              onChange={this.onChangeWName}
-              />
-        </div>
-        <div className="form-group">
-          <label>Balance: </label>
-          <input 
-              type="text" 
-              className="form-control"
-              value={this.state.wBalance}
-              onChange={this.onChangeWBalance}
-              />
-        </div>
+                <h3>Create New Wealth</h3>
+                
+                <form onSubmit={this.onSubmit}>
+                    <label>Type: </label>
+                    <Select 
+                        options= { wealthType } 
+                        onChange={this.onChangeWType}
+                        value={this.state.wType === 'asset' ? { label: "Asset", value: 'asset' } : { label: "Liability", value: 'liability' }}
+                        />
+                    <div className="form-group">
+                    <label>Name: </label>
+                    <input 
+                        type="text" 
+                        className="form-control"
+                        value={this.state.wName}
+                        onChange={this.onChangeWName}
+                        />
+                    </div>
+                    <div className="form-group">
+                    <label>Balance: </label>
+                    <CurrencyFormat 
+                        className="form-control" 
+                        thousandSeparator={true} 
+                        prefix={'$'} 
+                        decimalScale={4} 
+                        value={this.state.wBalance} 
+                        onValueChange={(values) => {
+                            this.onChangeWBalance(values.value)}
+                        }
+                    />
+                    </div>
 
-        <div className="form-group">
-          <input type="submit" value="Create Wealth Log" className="btn btn-primary" />
-        </div>
-      </form>
-    </div>
+                    <div className="form-group">
+                    <input type="submit" value="Create Wealth Log" className="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
         )
     }
 }

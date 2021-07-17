@@ -1,61 +1,51 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import Select from 'react-select'
+import CurrencyFormat from 'react-currency-format';
+
+const wealthType =[
+    { label: "Asset", value: 'asset' },
+    { label: "Liability", value: 'liability' }
+];
 
 export default class EditWealth extends Component {
     constructor(props) {
         super(props);
 
-        this.onChangeClientName = this.onChangeClientName.bind(this);
         this.onChangeWType = this.onChangeWType.bind(this);
         this.onChangeWName = this.onChangeWName.bind(this);
         this.onChangeWBalance = this.onChangeWBalance.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
 
         this.state = {
-            clientName: '',
-            wType: '',
+            wType:  'asset',
             wName: '',
             wBalance: 0,
-            clients: []
+            wAsset: 0,
+            wLiability: 0
         }
     }
 
     componentDidMount() {
         axios.get('http://localhost:5000/wealths/'+this.props.match.params.id)
             .then(response => {
+                    let responseBalance = response.data.wType === 'asset' ? response.data.wAsset : response.data.wLiability
+
                     this.setState({
                         clientName: response.data.clientName,
                         wType: response.data.wType,
                         wName: response.data.wName,
-                        wBalance: response.data.wBalance
+                        wBalance: responseBalance
                     })
             })
             .catch(function (error) {
                 console.log(error);
             })
-        
-        axios.get('http://localhost:5000/clients/')
-            .then(response => {
-                if (response.data.length > 0) {
-                    this.setState({
-                        clients: response.data.map(client => client.clientName),
-                    })
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-            })
     }
 
-    onChangeClientName(e) {
+    onChangeWType(option) {
         this.setState({
-            clientName: e.target.value
-        })
-    }
-
-    onChangeWType(e) {
-        this.setState({
-            wType: e.target.value
+            wType: option.value
         })
     }
 
@@ -65,20 +55,29 @@ export default class EditWealth extends Component {
         })
     }
 
-    onChangeWBalance(e) {
+    onChangeWBalance(value) {
         this.setState({
-            wBalance: e.target.value
-        })
+            wBalance: value
+        }, () => {this.changeBalanceCallback()})
+    }
+
+    changeBalanceCallback() {
+        if (this.state.wType === 'asset') {
+            this.setState({wAsset: this.state.wBalance})
+            this.setState({wLiability: 0})
+        } else {
+            this.setState({wLiability: this.state.wBalance})
+            this.setState({wAsset: 0})
+        }
     }
 
     onSubmit(e) {
         e.preventDefault();
-
         const wealth = {
-            clientName: this.state.clientName,
             wType: this.state.wType,
             wName: this.state.wName,
-            wBalance: this.state.wBalance,
+            wAsset: this.state.wAsset,
+            wLiability: this.state.wLiability,
         }
 
         console.log(wealth);
@@ -92,34 +91,15 @@ export default class EditWealth extends Component {
     render() {
         return (
             <div>
-                <h3>Edit Wealth </h3>
+                <h3>Edit Wealth</h3>
+                
                 <form onSubmit={this.onSubmit}>
-                    <div className="form-group"> 
-                    <label>Client's Name: </label>
-                    <select ref="userInput"
-                        required
-                        className="form-control"
-                        value={this.state.clientName}
-                        onChange={this.onChangeClientName}>
-                        {
-                            this.state.clients.map(function(client) {
-                                return <option 
-                                    key={client}
-                                    value={client}>{client}
-                                    </option>;
-                            })
-                        }
-                    </select>
-                    </div>
-                    <div className="form-group"> 
                     <label>Type: </label>
-                    <input  type="text"
-                        required
-                        className="form-control"
-                        value={this.state.wType}
+                    <Select 
+                        options= { wealthType } 
                         onChange={this.onChangeWType}
+                        value={this.state.wType === 'asset' ? { label: "Asset", value: 'asset' } : { label: "Liability", value: 'liability' }}
                         />
-                    </div>
                     <div className="form-group">
                     <label>Name: </label>
                     <input 
@@ -131,16 +111,21 @@ export default class EditWealth extends Component {
                     </div>
                     <div className="form-group">
                     <label>Balance: </label>
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        value={this.state.wBalance}
-                        onChange={this.onChangeWBalance}
-                        />
+                    <CurrencyFormat 
+                        className="form-control" 
+                        thousandSeparator={true} 
+                        prefix={'$'} 
+                        decimalScale={4} 
+                        fixedDecimalScale={true}
+                        value={this.state.wBalance} 
+                        onValueChange={(values) => {
+                            this.onChangeWBalance(values.value)}
+                        }
+                    />
                     </div>
 
                     <div className="form-group">
-                    <input type="submit" value="Edit Wealth Log" className="btn btn-primary" />
+                    <input type="submit" value="Update Wealth" className="btn btn-primary" />
                     </div>
                 </form>
                 </div>
