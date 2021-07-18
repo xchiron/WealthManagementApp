@@ -13,10 +13,10 @@ table should populate with the persisted data.
 - [x] Provide a way to Delete an asset or liability from the table
 - [x] Display the following calculations based on the Assets/Liabilities that exist in the table.
 These calculations must be done on the server:
-    -[x] **Net Worth**: Summed total of Assets and Liabilities in the table. This can be
+    - [x] **Net Worth**: Summed total of Assets and Liabilities in the table. This can be
 positive or negative.
-    -[x] **Assets Total**: Summed total of the assets in the table.
-    -[x] **Liabilities Total**: Summed total of the liabilities in the table.
+    - [x] **Assets Total**: Summed total of the assets in the table.
+    - [x] **Liabilities Total**: Summed total of the liabilities in the table.
 - [x] Deploy the application
 
 # Reflection
