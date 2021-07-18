@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -28,6 +29,18 @@ connection.once('open', () => {
 // Setup Router
 const wealthsRouter = require('./routes/wealths');
 app.use('/wealths',wealthsRouter);
+
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static('../build'));
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname,"../build","index.html"));
+    })
+} else {
+    app.get("/", (req, res) => {
+        res.send("Api running");
+    });
+}
 
 // Start the server
 app.listen(port, () => {
