@@ -75,7 +75,6 @@ export default class WealthsList extends Component {
         this.setState({
             wealths: this.state.wealths.filter(el => el._id !== id)
         })
-        //},() => {this.updateChart()})
     }
 
     wealthList() {
@@ -83,11 +82,6 @@ export default class WealthsList extends Component {
             return <Wealth wealth={currentwealth} deleteWealth={this.deleteWealth} key={currentwealth._id}/>;
         })
     }
-
-    // updateChart() {
-    //     Chart.instances[1].update();
-    //     console.log(Chart.instances);
-    // }
 
     // Chart documentation:
     // https://www.chartjs.org/docs/latest/charts/bar.html
