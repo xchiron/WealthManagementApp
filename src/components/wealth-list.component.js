@@ -24,7 +24,7 @@ const Wealth = props => (
     </tr>
   )
 
-const baseURL = process.env.baseURL || "http://localhost:5000";
+const baseURL = "https://mzhassetmanagement.herokuapp.com/" //process.env.baseURL || "http://localhost:5000/";
 
 export default class WealthsList extends Component {
 
