@@ -8,6 +8,8 @@ const wealthType =[
     { label: "Liability", value: 'liability' }
 ];
 
+const baseURL = process.env.baseURL || "http://localhost:5000/";
+
 export default class CreateWealth extends Component {
     constructor(props) {
         super(props);
@@ -65,7 +67,7 @@ export default class CreateWealth extends Component {
 
         console.log(wealth);
 
-        axios.post("http://localhost:5000/wealths/add",wealth)
+        axios.post(baseURL+"wealths/add",wealth)
             .then(res => console.log(res.data));
 
         window.location ='/';   

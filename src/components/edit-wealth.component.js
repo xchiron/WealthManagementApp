@@ -8,6 +8,8 @@ const wealthType =[
     { label: "Liability", value: 'liability' }
 ];
 
+const baseURL = process.env.baseURL || "http://localhost:5000";
+
 export default class EditWealth extends Component {
     constructor(props) {
         super(props);
@@ -27,7 +29,7 @@ export default class EditWealth extends Component {
     }
 
     componentDidMount() {
-        axios.get('http://localhost:5000/wealths/'+this.props.match.params.id)
+        axios.get(baseURL+'wealths/'+this.props.match.params.id)
             .then(response => {
                     let responseBalance = response.data.wType === 'asset' ? response.data.wAsset : response.data.wLiability
 
@@ -82,7 +84,7 @@ export default class EditWealth extends Component {
 
         console.log(wealth);
 
-        axios.post('http://localhost:5000/wealths/update/' + this.props.match.params.id,wealth)
+        axios.post(baseURL+'wealths/update/' + this.props.match.params.id,wealth)
             .then(res => console.log(res.data));
 
         window.location ='/';

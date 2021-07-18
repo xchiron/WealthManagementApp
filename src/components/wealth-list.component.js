@@ -24,6 +24,8 @@ const Wealth = props => (
     </tr>
   )
 
+const baseURL = process.env.baseURL || "http://localhost:5000";
+
 export default class WealthsList extends Component {
 
 
@@ -44,7 +46,7 @@ export default class WealthsList extends Component {
     }
 
     calcTotals(){
-        axios.get('http://localhost:5000/wealths/sum')
+        axios.get(baseURL+'wealths/sum')
             .then(response => {
                 this.setState({
                     assetTotal: response.data.assetTotal,
@@ -55,7 +57,7 @@ export default class WealthsList extends Component {
     }
 
     componentDidMount() {
-        axios.get('http://localhost:5000/wealths/')
+        axios.get(baseURL+'wealths/')
             .then(response => {
                 this.setState({ wealths: response.data },() => {this.calcTotals()})
             })
@@ -67,7 +69,7 @@ export default class WealthsList extends Component {
     }
 
     deleteWealth(id) {
-        axios.delete('http://localhost:5000/wealths/'+id)
+        axios.delete(baseURL+'wealths/'+id)
             .then(response => console.log(response.data));
 
         this.setState({
